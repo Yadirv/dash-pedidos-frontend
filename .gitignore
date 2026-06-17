@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build output
+dist/
+build/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Sistema
+.DS_Store
+Thumbs.db
+*.log
