@@ -7,7 +7,7 @@ import dataset from './data.json';
 // ==========================================
 // CONFIGURACIÓN API
 // ==========================================
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby0z-F2SilKm-AmG5PP9gcIC_SeOIBmz4T_4h0bg1I5VjgDedbZMYzFbPWedR2z532S/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM39sy6r2i0p75dS1M5n5l1R4w-0WHZdX7hDRPRA_BFlCdqESq_LYEaf_kAMMgb7KY/exec";
 
 function ProductModal({ item, onClose, findCol, formatCurrency, parseCurrency }) {
   const idxRef = findCol('Ref') ?? 0;
@@ -154,16 +154,16 @@ function CartModal({ unitCounts, rows, onClose, onUpdateQty, onClearCart, onSend
       <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col relative animate-in zoom-in-95 duration-200">
         
         <div className="flex items-center justify-between p-6 border-b border-slate-100">
-          <div className="flex items-center gap-3">
-            <div className="bg-indigo-100 text-indigo-600 p-3 rounded-2xl">
+          <div className="flex items-center gap-3 w-4/5">
+            <div className="bg-indigo-100 text-indigo-600 p-3 rounded-2xl flex-shrink-0">
               <ShoppingCart size={24} />
             </div>
             <div>
-              <h2 className="text-2xl font-black text-slate-900">Tu Carrito</h2>
+              <h2 className="text-xl md:text-2xl font-black text-slate-900 line-clamp-1">Tu Carrito</h2>
               <p className="text-sm font-bold text-slate-500">{cartItems.length} {cartItems.length === 1 ? 'producto' : 'productos'}</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 p-2 rounded-full transition-colors"><X size={24}/></button>
+          <button onClick={onClose} className="absolute top-6 right-6 text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 p-2 rounded-full transition-colors z-10"><X size={20}/></button>
         </div>
 
         <div className="p-6 overflow-y-auto flex-grow bg-slate-50/50">
@@ -185,26 +185,31 @@ function CartModal({ unitCounts, rows, onClose, onUpdateQty, onClearCart, onSend
                 const itemTotal = price * qty * (1 - discount);
 
                 return (
-                  <div key={item.index_} className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
-                    <ImageCell imgFile={imgFile} productName={item.row[idxProd]} onClick={() => {}} />
-                    <div className="flex-grow">
-                      <p className="text-sm font-bold text-slate-800 line-clamp-1">{item.row[idxProd]}</p>
-                      <p className="text-xs text-slate-400 mb-2">{item.row[idxMarca]}</p>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3 bg-slate-50 p-1.5 rounded-xl border border-slate-100 w-fit">
-                          <button onClick={() => onUpdateQty(item.index_, Math.max(0, qty-1))} className="text-slate-400 hover:text-red-500"><MinusCircle size={20}/></button>
-                          <span className="text-sm font-black w-6 text-center">{qty}</span>
-                          <button onClick={() => onUpdateQty(item.index_, qty+1)} className="text-slate-400 hover:text-indigo-600"><PlusCircle size={20}/></button>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-black text-indigo-600">{formatCurrency(itemTotal)}</p>
-                          {discount > 0 && <p className="text-[10px] font-bold text-emerald-500">Descuento aplicado (-{formatPercent(discount)})</p>}
+                  <div key={item.index_} className="bg-white p-3 md:p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col sm:flex-row items-start sm:items-center gap-4 relative">
+                    <div className="flex items-center gap-4 w-full sm:w-auto">
+                      <ImageCell imgFile={imgFile} productName={item.row[idxProd]} onClick={() => {}} />
+                      <div className="flex-grow sm:flex-grow-0">
+                        <p className="text-sm font-bold text-slate-800 pr-8 sm:pr-0">{item.row[idxProd]}</p>
+                        <p className="text-xs text-slate-400">{item.row[idxMarca]}</p>
+                      </div>
+                    </div>
+                    <div className="w-full sm:flex-grow flex flex-col sm:flex-row items-center sm:justify-between gap-3 sm:gap-0 mt-2 sm:mt-0">
+                      <div className="flex items-center gap-3 bg-slate-50 p-1.5 rounded-xl border border-slate-100 w-fit self-start sm:self-auto">
+                        <button onClick={() => onUpdateQty(item.index_, Math.max(0, qty-1))} className="text-slate-400 hover:text-red-500"><MinusCircle size={20}/></button>
+                        <span className="text-sm font-black w-6 text-center">{qty}</span>
+                        <button onClick={() => onUpdateQty(item.index_, qty+1)} className="text-slate-400 hover:text-indigo-600"><PlusCircle size={20}/></button>
+                      </div>
+                      <div className="text-left sm:text-right w-full sm:w-auto flex justify-between sm:block items-center">
+                        <span className="sm:hidden text-xs text-slate-500 font-bold">Total:</span>
+                        <div>
+                          <p className="text-base sm:text-sm font-black text-indigo-600">{formatCurrency(itemTotal)}</p>
+                          {discount > 0 && <p className="text-[10px] font-bold text-emerald-500">Desc. (-{formatPercent(discount)})</p>}
                         </div>
                       </div>
                     </div>
                     <button 
                       onClick={() => onUpdateQty(item.index_, 0)} 
-                      className="ml-2 p-3 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                      className="absolute top-2 right-2 sm:relative sm:top-auto sm:right-auto sm:ml-2 p-2 sm:p-3 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
                       title="Eliminar producto"
                     >
                       <Trash2 size={20} />
@@ -262,31 +267,40 @@ const ProductRow = React.memo(({ item, qty, includeIva, onUpdateQty, onSelectPro
   const inactivePrice = parseCurrency(inactivePriceStr) + transport;
 
   return (
-    <tr className="hover:bg-slate-50 transition-colors">
-      <td className="px-6 py-4">
-        <div className="flex items-center gap-4">
+    <tr className="flex flex-col md:table-row hover:bg-slate-50 transition-colors border-b border-slate-200 md:border-none mb-4 md:mb-0 bg-white md:bg-transparent rounded-2xl md:rounded-none p-4 md:p-0 shadow-sm md:shadow-none">
+      <td className="block md:table-cell px-2 py-2 md:px-6 md:py-4 mb-2 md:mb-0">
+        <div className="flex items-start gap-4">
           <ImageCell imgFile={imgFile} productName={item.row[idxProd]} onClick={() => onSelectProduct(item)} />
-          <div>
-            <p className="text-sm font-bold text-slate-800 line-clamp-1 cursor-pointer hover:text-indigo-600" onClick={() => onSelectProduct(item)}>{item.row[idxProd]}</p>
+          <div className="flex-1">
+            <p className="text-sm font-bold text-slate-800 line-clamp-2 md:line-clamp-1 cursor-pointer hover:text-indigo-600" onClick={() => onSelectProduct(item)}>{item.row[idxProd]}</p>
             <p className="text-[10px] text-slate-400">{item.row[idxMarca]}</p>
+            <div className="md:hidden mt-1 text-xs font-mono text-slate-500">{item.row[idxRef]}</div>
           </div>
         </div>
       </td>
-      <td className="text-xs font-mono text-slate-500">{item.row[idxRef]}</td>
-      <td className="text-sm">
-        <span className="font-bold text-slate-700">{formatCurrency(activePrice)}</span>
-        <p className="text-[10px] text-slate-400">{includeIva ? 'Sin IVA: ' : 'Con IVA: '}{formatCurrency(inactivePrice)}</p>
-      </td>
-      <td className="text-center">
-        <div className="flex items-center justify-center gap-3">
-          <button onClick={() => onUpdateQty(item.index_, Math.max(0, qty-1))} className="text-slate-300 hover:text-red-500"><MinusCircle size={20}/></button>
-          <span className="text-sm font-black w-6">{qty}</span>
-          <button onClick={() => onUpdateQty(item.index_, qty+1)} className="text-slate-300 hover:text-indigo-600"><PlusCircle size={20}/></button>
+      <td className="hidden md:table-cell text-xs font-mono text-slate-500">{item.row[idxRef]}</td>
+      <td className="block md:table-cell text-sm flex justify-between md:justify-start items-center mb-3 md:mb-0">
+        <span className="md:hidden text-xs text-slate-500 font-bold uppercase tracking-wider">Precio</span>
+        <div className="text-right md:text-left">
+          <span className="font-bold text-slate-700">{formatCurrency(activePrice)}</span>
+          <p className="text-[10px] text-slate-400">{includeIva ? 'Sin IVA: ' : 'Con IVA: '}{formatCurrency(inactivePrice)}</p>
         </div>
       </td>
-      <td className="text-center">{discount > 0 && <span className="bg-green-100 text-green-700 px-2 py-1 rounded-lg text-[10px] font-black">-{formatPercent(discount)}</span>}</td>
-      <td className="px-6 text-right font-bold text-slate-800 text-sm">
-        {qty > 0 ? formatCurrency(activePrice * qty * (1 - discount)) : '-'}
+      <td className="block md:table-cell text-center flex justify-between md:justify-center items-center mb-3 md:mb-0 bg-slate-50 md:bg-transparent p-2 md:p-0 rounded-xl">
+        <span className="md:hidden text-xs text-slate-600 font-bold uppercase tracking-wider">Cantidad</span>
+        <div className="flex items-center justify-center gap-3">
+          <button onClick={() => onUpdateQty(item.index_, Math.max(0, qty-1))} className="text-slate-400 hover:text-red-500 bg-white md:bg-transparent p-1 md:p-0 rounded-md shadow-sm md:shadow-none"><MinusCircle size={24} className="md:w-5 md:h-5"/></button>
+          <span className="text-lg md:text-sm font-black w-8 text-center">{qty}</span>
+          <button onClick={() => onUpdateQty(item.index_, qty+1)} className="text-indigo-500 hover:text-indigo-700 bg-white md:bg-transparent p-1 md:p-0 rounded-md shadow-sm md:shadow-none"><PlusCircle size={24} className="md:w-5 md:h-5"/></button>
+        </div>
+      </td>
+      <td className="block md:table-cell text-center hidden md:table-cell">{discount > 0 && <span className="bg-green-100 text-green-700 px-2 py-1 rounded-lg text-[10px] font-black">-{formatPercent(discount)}</span>}</td>
+      <td className="block md:table-cell md:px-6 md:text-right font-bold text-slate-800 text-sm flex justify-between md:justify-end items-center pt-3 md:pt-0 border-t border-slate-100 md:border-none">
+        <span className="md:hidden text-xs text-slate-500 font-bold uppercase tracking-wider">Total Item</span>
+        <div className="text-right">
+          <span className="text-lg md:text-sm text-indigo-600 md:text-slate-800">{qty > 0 ? formatCurrency(activePrice * qty * (1 - discount)) : '-'}</span>
+          {discount > 0 && <p className="text-[10px] font-bold text-emerald-500 md:hidden mt-0.5">Descuento aplicado: -{formatPercent(discount)}</p>}
+        </div>
       </td>
     </tr>
   );
@@ -590,11 +604,10 @@ export default function App() {
     return { count: filteredRows.length, totalCompra, catCount: cats, dogCount: dogs, distinctItems };
   }, [filteredRows, rows, unitCounts, includeIva, idxPvpCon, idxPvpSin, idxProd, getDiscount, parseCurrency]);
 
-  // Si no está logueado, mostrar pantalla de Login
   if (!clientLogged) {
     return (
-      <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
-        <div className="bg-white p-8 md:p-10 rounded-3xl shadow-xl w-full max-w-md border border-slate-200">
+      <div className="min-h-screen bg-slate-100 flex flex-col items-center justify-center p-4 py-12">
+        <div className="bg-white p-8 md:p-10 rounded-3xl shadow-xl w-full max-w-md border border-slate-200 my-auto">
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-200">
               <Package className="text-white" size={32} />
@@ -774,9 +787,9 @@ export default function App() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
+        <div className="overflow-x-auto overflow-y-hidden md:overflow-visible">
+          <table className="w-full text-left border-collapse block md:table">
+            <thead className="hidden md:table-header-group">
               <tr className="bg-slate-50/50 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                 <th className="px-6 py-4">Producto</th>
                 <th>Referencia</th>
@@ -786,7 +799,7 @@ export default function App() {
                 <th className="px-6 text-right">Total</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="block md:table-row-group divide-y divide-slate-100">
               {filteredRows.map(item => {
                 const qty = unitCounts[item.index_] || 0;
                 return (
@@ -818,19 +831,19 @@ export default function App() {
       {/* CHECKOUT FLOATING BAR */}
       {stats.totalCompra > 0 && (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] z-40 p-4 animate-in slide-in-from-bottom duration-300">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className="flex-grow">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex-grow w-full text-center md:text-left">
               <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total de tu pedido</p>
-              <div className="flex items-baseline gap-3">
+              <div className="flex items-baseline justify-center md:justify-start gap-3">
                 <p className="text-3xl font-black text-indigo-600">{formatCurrency(stats.totalCompra)}</p>
                 <span className="text-sm font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">{stats.distinctItems} items</span>
               </div>
             </div>
             
-            <div className="flex w-full sm:w-auto gap-3">
+            <div className="flex flex-col sm:flex-row w-full md:w-auto gap-3">
               <button 
                 onClick={() => setIsCartOpen(true)}
-                className="flex-1 sm:flex-none bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-4 px-6 rounded-2xl transition-all flex items-center justify-center gap-2 border border-indigo-100"
+                className="w-full sm:w-auto flex-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 md:py-4 px-6 rounded-2xl transition-all flex items-center justify-center gap-2 border border-indigo-100"
               >
                 <Eye size={20} />
                 Ver Carrito
@@ -839,7 +852,7 @@ export default function App() {
               <button 
                 onClick={handleSendOrder}
                 disabled={isSendingOrder}
-                className="flex-[2] sm:flex-none bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-bold py-4 px-8 rounded-2xl transition-all shadow-md shadow-indigo-200 flex items-center justify-center gap-2 text-lg"
+                className="w-full sm:w-auto flex-[2] bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-bold py-3 md:py-4 px-8 rounded-2xl transition-all shadow-md shadow-indigo-200 flex items-center justify-center gap-2 text-lg"
               >
                 {isSendingOrder ? <Loader2 className="animate-spin" /> : <ShoppingCart />}
                 {isSendingOrder ? 'Enviando...' : 'Confirmar Pedido'}
@@ -874,3 +887,4 @@ export default function App() {
     </div>
   );
 }
+
