@@ -18,6 +18,8 @@ function ProductModal({ item, onClose, findCol, formatCurrency, parseCurrency })
   const idxImgUrl = findCol('Imagen_URL') ?? 12;
   const idxDesc = findCol('Descripción') ?? -1;
   const idxNutri = findCol('Datos Nutricionales') ?? -1;
+  const idxProveedor = findCol('Proveedor') ?? 4;
+  const idxDistribuidor = findCol('Distribuidor') ?? 11;
 
   const [imgError, setImgError] = useState(false);
 
@@ -65,6 +67,14 @@ function ProductModal({ item, onClose, findCol, formatCurrency, parseCurrency })
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Precio Final (Con Iva)</p>
                 <p className="text-lg font-black text-indigo-600">{formatCurrency(parseCurrency(item.row[idxPvpCon]) + (parseCurrency(item.row[idxPvpSin]) * 0.05))}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Proveedor</p>
+                <p className="text-sm font-bold text-slate-800">{item.row[idxProveedor] || 'N/A'}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Distribuidor</p>
+                <p className="text-sm font-bold text-slate-800">{item.row[idxDistribuidor] || 'N/A'}</p>
               </div>
             </div>
 
@@ -265,6 +275,7 @@ const ProductRow = React.memo(({ item, qty, includeIva, onUpdateQty, onSelectPro
   const activePrice = parseCurrency(activePriceStr) + transport;
   const inactivePriceStr = includeIva ? item.row[idxPvpSin] : item.row[idxPvpCon];
   const inactivePrice = parseCurrency(inactivePriceStr) + transport;
+  const noDisponible = isNaN(activePrice) || activePrice <= 0;
 
   return (
     <tr className="flex flex-col md:table-row hover:bg-slate-50 transition-colors border-b border-slate-200 md:border-none mb-4 md:mb-0 bg-white md:bg-transparent rounded-2xl md:rounded-none p-4 md:p-0 shadow-sm md:shadow-none">
@@ -282,16 +293,22 @@ const ProductRow = React.memo(({ item, qty, includeIva, onUpdateQty, onSelectPro
       <td className="block md:table-cell text-sm flex justify-between md:justify-start items-center mb-3 md:mb-0">
         <span className="md:hidden text-xs text-slate-500 font-bold uppercase tracking-wider">Precio</span>
         <div className="text-right md:text-left">
-          <span className="font-bold text-slate-700">{formatCurrency(activePrice)}</span>
-          <p className="text-[10px] text-slate-400">{includeIva ? 'Sin IVA: ' : 'Con IVA: '}{formatCurrency(inactivePrice)}</p>
+          {noDisponible ? (
+            <span className="font-black text-rose-500 text-[10px] uppercase tracking-widest bg-rose-50 px-2 py-1 rounded-md">No Disponible</span>
+          ) : (
+            <>
+              <span className="font-bold text-slate-700">{formatCurrency(activePrice)}</span>
+              <p className="text-[10px] text-slate-400">{includeIva ? 'Sin IVA: ' : 'Con IVA: '}{formatCurrency(inactivePrice)}</p>
+            </>
+          )}
         </div>
       </td>
       <td className="block md:table-cell text-center flex justify-between md:justify-center items-center mb-3 md:mb-0 bg-slate-50 md:bg-transparent p-2 md:p-0 rounded-xl">
         <span className="md:hidden text-xs text-slate-600 font-bold uppercase tracking-wider">Cantidad</span>
         <div className="flex items-center justify-center gap-3">
-          <button onClick={() => onUpdateQty(item.index_, Math.max(0, qty-1))} className="text-slate-400 hover:text-red-500 bg-white md:bg-transparent p-1 md:p-0 rounded-md shadow-sm md:shadow-none"><MinusCircle size={24} className="md:w-5 md:h-5"/></button>
-          <span className="text-lg md:text-sm font-black w-8 text-center">{qty}</span>
-          <button onClick={() => onUpdateQty(item.index_, qty+1)} className="text-indigo-500 hover:text-indigo-700 bg-white md:bg-transparent p-1 md:p-0 rounded-md shadow-sm md:shadow-none"><PlusCircle size={24} className="md:w-5 md:h-5"/></button>
+          <button disabled={noDisponible} onClick={() => onUpdateQty(item.index_, Math.max(0, qty-1))} className="text-slate-400 hover:text-red-500 disabled:opacity-30 disabled:cursor-not-allowed bg-white md:bg-transparent p-1 md:p-0 rounded-md shadow-sm md:shadow-none"><MinusCircle size={24} className="md:w-5 md:h-5"/></button>
+          <span className={`text-lg md:text-sm font-black w-8 text-center ${noDisponible ? 'text-slate-300' : ''}`}>{qty}</span>
+          <button disabled={noDisponible} onClick={() => onUpdateQty(item.index_, qty+1)} className="text-indigo-500 hover:text-indigo-700 disabled:opacity-30 disabled:cursor-not-allowed bg-white md:bg-transparent p-1 md:p-0 rounded-md shadow-sm md:shadow-none"><PlusCircle size={24} className="md:w-5 md:h-5"/></button>
         </div>
       </td>
       <td className="block md:table-cell text-center hidden md:table-cell">{discount > 0 && <span className="bg-green-100 text-green-700 px-2 py-1 rounded-lg text-[10px] font-black">-{formatPercent(discount)}</span>}</td>
@@ -673,6 +690,7 @@ export default function App() {
         <div>
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Comercial Pet <span className="text-indigo-600">Dashboard</span></h1>
           <p className="text-sm font-bold text-slate-500 mt-1">Bienvenido, <span className="text-indigo-600">{clientLogged.negocio}</span></p>
+          <p className="text-[10px] font-black text-rose-500 mt-2 uppercase tracking-widest bg-rose-50 px-2 py-1 rounded-md inline-block">Todos Los Pedidos están sujetos a verificación</p>
         </div>
         <div className="flex flex-col items-center md:items-end gap-2">
           <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-100 w-fit">
