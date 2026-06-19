@@ -50,33 +50,28 @@ function ProductModal({ item, onClose, findCol, formatCurrency, parseCurrency })
                 <p className="text-sm text-slate-600 leading-relaxed">{desc}</p>
               </div>
             )}
-
             <div className="grid grid-cols-2 gap-y-6 gap-x-4 mb-6">
-              <div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Referencia</p>
-                <p className="text-sm font-bold text-slate-800">{item.row[idxRef]}</p>
+                <div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Referencia</p>
+                  <p className="text-sm font-bold text-slate-800">{item.row[idxRef]}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Marca</p>
+                  <p className="text-sm font-bold text-slate-800">{item.row[idxMarca]}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Precio Sin Iva</p>
+                  <p className="text-sm font-bold text-slate-800">{formatCurrency(parseCurrency(item.row[idxPvpSin]) + (parseCurrency(item.row[idxPvpSin]) * 0.05))}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Precio Final (Con Iva)</p>
+                  <p className="text-lg font-black text-indigo-600">{formatCurrency(parseCurrency(item.row[idxPvpCon]) + (parseCurrency(item.row[idxPvpSin]) * 0.05))}</p>
+                </div>
+                <div className="col-span-2">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Distribuidor</p>
+                  <p className="text-sm font-bold text-slate-800">{item.row[idxDistribuidor] || 'N/A'}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Marca</p>
-                <p className="text-sm font-bold text-slate-800">{item.row[idxMarca]}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Precio Sin Iva</p>
-                <p className="text-sm font-bold text-slate-800">{formatCurrency(parseCurrency(item.row[idxPvpSin]) + (parseCurrency(item.row[idxPvpSin]) * 0.05))}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Precio Final (Con Iva)</p>
-                <p className="text-lg font-black text-indigo-600">{formatCurrency(parseCurrency(item.row[idxPvpCon]) + (parseCurrency(item.row[idxPvpSin]) * 0.05))}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Proveedor</p>
-                <p className="text-sm font-bold text-slate-800">{item.row[idxProveedor] || 'N/A'}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Distribuidor</p>
-                <p className="text-sm font-bold text-slate-800">{item.row[idxDistribuidor] || 'N/A'}</p>
-              </div>
-            </div>
 
             {nutri && (
               <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100">
