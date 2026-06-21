@@ -7,7 +7,7 @@ import dataset from './data.json';
 // ==========================================
 // CONFIGURACIÓN API
 // ==========================================
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM39sy6r2i0p75dS1M5n5l1R4w-0WHZdX7hDRPRA_BFlCdqESq_LYEaf_kAMMgb7KY/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUaVrLrV627chi0BONtjSktR39jBgDAmU0-9SO3C1a-_tCgDguQNNWSzR3PHSSqyS_/exec";
 
 function ProductModal({ item, onClose, findCol, formatCurrency, parseCurrency }) {
   const idxRef = findCol('Ref') ?? 0;
@@ -129,7 +129,7 @@ function ImageCell({ imgFile, productName, onClick }) {
 // ==========================================
 // COMPONENTE CART MODAL
 // ==========================================
-function CartModal({ unitCounts, rows, onClose, onUpdateQty, onClearCart, onSendOrder, isSendingOrder, formatCurrency, parseCurrency, getDiscount, idxPvpCon, idxPvpSin, idxProd, idxMarca, idxImgUrl, includeIva }) {
+function CartModal({ unitCounts, rows, onClose, onUpdateQty, onClearCart, onSendOrder, isSendingOrder, formatCurrency, parseCurrency, getPoints, idxPvpCon, idxPvpSin, idxProd, idxMarca, idxImgUrl, idxMargen, includeIva }) {
   const cartItems = useMemo(() => {
     const items = [];
     Object.entries(unitCounts).forEach(([index_, qty]) => {
@@ -141,18 +141,21 @@ function CartModal({ unitCounts, rows, onClose, onUpdateQty, onClearCart, onSend
     return items;
   }, [unitCounts, rows]);
 
-  const totalCart = useMemo(() => {
+  const { totalCart, totalPuntos } = useMemo(() => {
     let total = 0;
+    let puntos = 0;
     cartItems.forEach(({ item, qty }) => {
-      const discount = getDiscount(qty);
+      const margin = typeof item.row[idxMargen] === 'string' ? parseFloat(item.row[idxMargen]) : item.row[idxMargen];
+      const pts = getPoints(margin);
+      puntos += pts;
       const pvpSin = parseCurrency(item.row[idxPvpSin]);
       const transport = pvpSin * 0.05;
       const priceStr = includeIva ? item.row[idxPvpCon] : item.row[idxPvpSin];
       const price = parseCurrency(priceStr) + transport;
-      total += price * qty * (1 - discount);
+      total += price * qty;
     });
-    return Math.ceil(total / 10) * 10;
-  }, [cartItems, includeIva, getDiscount, parseCurrency, idxPvpCon, idxPvpSin]);
+    return { totalCart: Math.ceil(total / 10) * 10, totalPuntos: puntos };
+  }, [cartItems, includeIva, getPoints, parseCurrency, idxPvpCon, idxPvpSin, idxMargen]);
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
@@ -182,12 +185,13 @@ function CartModal({ unitCounts, rows, onClose, onUpdateQty, onClearCart, onSend
             <div className="space-y-4">
               {cartItems.map(({ item, qty }) => {
                 const imgFile = item.row[idxImgUrl]?.split('/').pop();
+                const margin = typeof item.row[idxMargen] === 'string' ? parseFloat(item.row[idxMargen]) : item.row[idxMargen];
+                const pts = getPoints(margin);
                 const pvpSin = parseCurrency(item.row[idxPvpSin]);
                 const transport = pvpSin * 0.05;
                 const priceStr = includeIva ? item.row[idxPvpCon] : item.row[idxPvpSin];
                 const price = parseCurrency(priceStr) + transport;
-                const discount = getDiscount(qty);
-                const itemTotal = price * qty * (1 - discount);
+                const itemTotal = price * qty;
 
                 return (
                   <div key={item.index_} className="bg-white p-3 md:p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col sm:flex-row items-start sm:items-center gap-4 relative">
@@ -208,7 +212,7 @@ function CartModal({ unitCounts, rows, onClose, onUpdateQty, onClearCart, onSend
                         <span className="sm:hidden text-xs text-slate-500 font-bold">Total:</span>
                         <div>
                           <p className="text-base sm:text-sm font-black text-indigo-600">{formatCurrency(itemTotal)}</p>
-                          {discount > 0 && <p className="text-[10px] font-bold text-emerald-500">Desc. (-{formatPercent(discount)})</p>}
+                          {pts > 0 && <p className="text-[10px] font-bold text-emerald-500">Aporta +{pts} Pts</p>}
                         </div>
                       </div>
                     </div>
@@ -227,10 +231,16 @@ function CartModal({ unitCounts, rows, onClose, onUpdateQty, onClearCart, onSend
         </div>
 
         <div className="p-6 bg-white border-t border-slate-100 rounded-b-[2rem]">
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex justify-between items-center mb-2">
             <span className="text-slate-500 font-bold uppercase tracking-wider text-sm">Total a Pagar</span>
             <span className="text-3xl font-black text-indigo-600">{formatCurrency(totalCart)}</span>
           </div>
+          {totalPuntos > 0 && (
+            <div className="flex justify-between items-center mb-6">
+              <span className="text-emerald-600 font-bold uppercase tracking-wider text-sm">Puntos Acumulados</span>
+              <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-xl text-lg font-black">+{totalPuntos} Pts</span>
+            </div>
+          )}
           <div className="flex flex-col sm:flex-row gap-4">
             <button 
               onClick={onClearCart}
@@ -261,8 +271,9 @@ function CartModal({ unitCounts, rows, onClose, onUpdateQty, onClearCart, onSend
 // ==========================================
 // COMPONENTE DE FILA MEMOIZADO (ALTO RENDIMIENTO)
 // ==========================================
-const ProductRow = React.memo(({ item, qty, includeIva, onUpdateQty, onSelectProduct, formatCurrency, parseCurrency, formatPercent, getDiscount, idxImgUrl, idxPvpCon, idxPvpSin, idxProd, idxMarca, idxRef }) => {
-  const discount = getDiscount(qty);
+const ProductRow = React.memo(({ item, qty, includeIva, onUpdateQty, onSelectProduct, formatCurrency, parseCurrency, formatPercent, getPoints, idxImgUrl, idxPvpCon, idxPvpSin, idxProd, idxMarca, idxRef, idxMargen }) => {
+  const margin = typeof item.row[idxMargen] === 'string' ? parseFloat(item.row[idxMargen]) : item.row[idxMargen];
+  const pts = getPoints(margin);
   const imgFile = item.row[idxImgUrl]?.split('/').pop();
   const pvpSin = parseCurrency(item.row[idxPvpSin]);
   const transport = pvpSin * 0.05;
@@ -306,12 +317,12 @@ const ProductRow = React.memo(({ item, qty, includeIva, onUpdateQty, onSelectPro
           <button disabled={noDisponible} onClick={() => onUpdateQty(item.index_, qty+1)} className="text-indigo-500 hover:text-indigo-700 disabled:opacity-30 disabled:cursor-not-allowed bg-white md:bg-transparent p-1 md:p-0 rounded-md shadow-sm md:shadow-none"><PlusCircle size={24} className="md:w-5 md:h-5"/></button>
         </div>
       </td>
-      <td className="block md:table-cell text-center hidden md:table-cell">{discount > 0 && <span className="bg-green-100 text-green-700 px-2 py-1 rounded-lg text-[10px] font-black">-{formatPercent(discount)}</span>}</td>
+      <td className="block md:table-cell text-center hidden md:table-cell">{pts > 0 && <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded-lg text-[10px] font-black">+{pts} Pts</span>}</td>
       <td className="block md:table-cell md:px-6 md:text-right font-bold text-slate-800 text-sm flex justify-between md:justify-end items-center pt-3 md:pt-0 border-t border-slate-100 md:border-none">
         <span className="md:hidden text-xs text-slate-500 font-bold uppercase tracking-wider">Total Item</span>
         <div className="text-right">
-          <span className="text-lg md:text-sm text-indigo-600 md:text-slate-800">{qty > 0 ? formatCurrency(activePrice * qty * (1 - discount)) : '-'}</span>
-          {discount > 0 && <p className="text-[10px] font-bold text-emerald-500 md:hidden mt-0.5">Descuento aplicado: -{formatPercent(discount)}</p>}
+          <span className="text-lg md:text-sm text-indigo-600 md:text-slate-800">{qty > 0 ? formatCurrency(activePrice * qty) : '-'}</span>
+          {pts > 0 && qty > 0 && <p className="text-[10px] font-bold text-emerald-500 md:hidden mt-0.5">Aporta +{pts} Pts</p>}
         </div>
       </td>
     </tr>
@@ -369,6 +380,7 @@ export default function App() {
   const idxMarca = findCol('Marca') ?? 2;
   const idxPvpSin= findCol('PVP Sin') ?? 8;
   const idxPvpCon= findCol('PVP Con') ?? 9;
+  const idxMargen = findCol('Margen %') ?? 10;
   const idxImgUrl= findCol('Imagen_URL') ?? 12;
   const idxCanales = findCol('Canales');  // Canal de venta
 
@@ -389,9 +401,12 @@ export default function App() {
     return 'Other';
   };
 
-  const getDiscount = useCallback((qty) => {
-    if (qty >= 5 && qty <= 10) return 0.05;
-    if (qty >= 11) return 0.10;
+  const getPoints = useCallback((margin) => {
+    if (!margin || isNaN(margin)) return 0;
+    const marginPct = margin * 100;
+    if (marginPct >= 30) return 15;
+    if (marginPct >= 20) return 10;
+    if (marginPct >= 10) return 5;
     return 0;
   }, []);
 
@@ -454,16 +469,19 @@ export default function App() {
     if (!clientLogged) return;
     
     const items = [];
+    let totalPuntos = 0;
     Object.entries(unitCounts).forEach(([index_, qty]) => {
       if (qty > 0) {
         const item = rows.find(r => r.index_.toString() === index_.toString());
         if (item) {
-          const discount = getDiscount(qty);
+          const margin = typeof item.row[idxMargen] === 'string' ? parseFloat(item.row[idxMargen]) : item.row[idxMargen];
+          const pts = getPoints(margin);
+          totalPuntos += pts;
           const pvpSin = parseCurrency(item.row[idxPvpSin]);
           const transport = pvpSin * 0.05;
           const priceStr = includeIva ? item.row[idxPvpCon] : item.row[idxPvpSin];
           const price = parseCurrency(priceStr) + transport;
-          const totalItem = price * qty * (1 - discount);
+          const totalItem = price * qty;
           
           items.push({
             referencia: item.row[idxRef],
@@ -471,7 +489,7 @@ export default function App() {
             marca: item.row[idxMarca],
             cantidad: qty,
             precioUnitario: price,
-            descuentoAplicado: discount,
+            descuentoAplicado: 0,
             totalItem: totalItem
           });
         }
@@ -487,6 +505,7 @@ export default function App() {
       negocio: clientLogged.negocio,
       fecha: new Date().toLocaleString('es-CO'),
       incluye_iva: includeIva,
+      totalPuntos: totalPuntos,
       items: items
     };
 
@@ -592,7 +611,7 @@ export default function App() {
   }, [rows, deferredSearchTerm, deferredFilterPetType, deferredSelectedBrands, idxImgUrl, idxProd, idxRef, idxMarca, idxCanales, clientLogged]);
 
   const stats = useMemo(() => {
-    let totalCompra = 0; let cats = 0; let dogs = 0; let distinctItems = 0;
+    let totalCompra = 0; let cats = 0; let dogs = 0; let distinctItems = 0; let totalPuntos = 0;
     filteredRows.forEach(item => {
       const type = getPetType(item.row[idxProd]);
       if (type === 'Cat') cats++;
@@ -603,18 +622,20 @@ export default function App() {
         distinctItems++;
         const item = rows.find(r => r.index_.toString() === index_.toString());
         if (item) {
-          const discount = getDiscount(qty);
+          const margin = typeof item.row[idxMargen] === 'string' ? parseFloat(item.row[idxMargen]) : item.row[idxMargen];
+          const pts = getPoints(margin);
+          totalPuntos += pts;
           const pvpSin = parseCurrency(item.row[idxPvpSin]);
           const transport = pvpSin * 0.05;
           const priceStr = includeIva ? item.row[idxPvpCon] : item.row[idxPvpSin];
           const price = parseCurrency(priceStr) + transport;
-          totalCompra += price * qty * (1 - discount);
+          totalCompra += price * qty;
         }
       }
     });
     totalCompra = Math.ceil(totalCompra / 10) * 10;
-    return { count: filteredRows.length, totalCompra, catCount: cats, dogCount: dogs, distinctItems };
-  }, [filteredRows, rows, unitCounts, includeIva, idxPvpCon, idxPvpSin, idxProd, getDiscount, parseCurrency]);
+    return { count: filteredRows.length, totalCompra, catCount: cats, dogCount: dogs, distinctItems, totalPuntos };
+  }, [filteredRows, rows, unitCounts, includeIva, idxPvpCon, idxPvpSin, idxProd, getPoints, parseCurrency, idxMargen]);
 
   if (!clientLogged) {
     return (
@@ -808,7 +829,7 @@ export default function App() {
                 <th>Referencia</th>
                 <th>Precio</th>
                 <th className="text-center">Cantidad</th>
-                <th className="text-center">Descuento</th>
+                <th className="text-center">Puntos</th>
                 <th className="px-6 text-right">Total</th>
               </tr>
             </thead>
@@ -826,8 +847,9 @@ export default function App() {
                     formatCurrency={formatCurrency}
                     parseCurrency={parseCurrency}
                     formatPercent={formatPercent}
-                    getDiscount={getDiscount}
+                    getPoints={getPoints}
                     idxImgUrl={idxImgUrl}
+                    idxMargen={idxMargen}
                     idxPvpCon={idxPvpCon}
                     idxPvpSin={idxPvpSin}
                     idxProd={idxProd}
@@ -888,16 +910,18 @@ export default function App() {
           isSendingOrder={isSendingOrder}
           formatCurrency={formatCurrency}
           parseCurrency={parseCurrency}
-          getDiscount={getDiscount}
+          getPoints={getPoints}
           idxPvpCon={idxPvpCon}
           idxPvpSin={idxPvpSin}
           idxProd={idxProd}
           idxMarca={idxMarca}
           idxImgUrl={idxImgUrl}
+                    idxMargen={idxMargen}
           includeIva={includeIva}
         />
       )}
     </div>
   );
 }
+
 
