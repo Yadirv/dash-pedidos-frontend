@@ -822,15 +822,15 @@ export default function App() {
         </div>
 
         <div className="overflow-x-auto overflow-y-hidden md:overflow-visible">
-          <table className="w-full text-left border-collapse block md:table">
+          <table className="w-full text-left border-collapse block md:table md:table-fixed">
             <thead className="hidden md:table-header-group">
               <tr className="bg-slate-50/50 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                <th className="px-6 py-4">Producto</th>
-                <th>Referencia</th>
-                <th>Precio</th>
-                <th className="text-center">Cantidad</th>
-                <th className="text-center">Puntos</th>
-                <th className="px-6 text-right">Total</th>
+                <th className="px-6 py-4 w-[40%]">Producto</th>
+                <th className="w-[15%]">Referencia</th>
+                <th className="w-[15%]">Precio</th>
+                <th className="text-center w-[12%]">Cantidad</th>
+                <th className="text-center w-[8%]">Puntos</th>
+                <th className="px-6 text-right w-[10%]">Total</th>
               </tr>
             </thead>
             <tbody className="block md:table-row-group divide-y divide-slate-100">
