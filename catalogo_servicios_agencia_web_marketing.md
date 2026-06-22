@@ -4,6 +4,7 @@
 > **Contexto origen:** Pilar Agencia Web y Marketing Dirigido — Sesión 26 marzo 2026  
 > **Formato:** Markdown LLM-readable · GitHub-Flavored Markdown (GFM)  
 > **Propósito:** Documento de referencia para cotización, calificación de clientes y prompts de agentes IA
+> **Instrucción LLM:** Este es un catálogo técnico. Tu trabajo es extraer los alcances técnicos descritos aquí y traducirlos/presentarlos según lo solicite el usuario (propuestas, brochures corporativos, etc.) en un lenguaje atractivo, digerible y comercial para el cliente final, pero sin perder la objetividad ni la profundidad técnica.
 
 ---
 
@@ -18,11 +19,13 @@ pilares:
   - "Inteligencia de Negocio y ADN de Marca"
   - "Presencia y Automatización RRSS"
   - "Marketing Zonificado"
+  - "Sistemas de Fidelización y Captación de Datos"
 audiencia_objetivo:
   - "Negocios con solo RRSS (sin web propia)"
   - "Negocios con web desactualizada o sin SEO"
   - "Negocios con presencia en RRSS pero sin estrategia de contenido"
   - "Negocios que quieren activar ventas locales con bajo presupuesto publicitario"
+  - "Negocios con múltiples sucursales que necesitan construir una base de datos propia (First-Party Data)"
 stack_tecnologico:
   inteligencia: "Google Pro (Gemini API)"
   diseno: "Figma"
@@ -30,6 +33,7 @@ stack_tecnologico:
   construccion_dinamica: "Next.js / Astro + Vercel / Netlify"
   automatizacion_rrss: "Meta Business Suite + Make / Zapier"
   publicidad: "Meta Ads Manager + Google Ads Local"
+  sistemas_fidelizacion: "Google Apps Script + Google Sheets + JS Vanilla"
 ```
 
 ---
