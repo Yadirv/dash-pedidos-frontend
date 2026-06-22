@@ -7,7 +7,7 @@ import dataset from './data.json';
 // ==========================================
 // CONFIGURACIÓN API
 // ==========================================
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUaVrLrV627chi0BONtjSktR39jBgDAmU0-9SO3C1a-_tCgDguQNNWSzR3PHSSqyS_/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxzGXfr-fvDJF0IDf0BFMT6ajkzMe5R9MR-I1OfqiKfotRNcuOwM8--UoWKGCfPaXbD/exec";
 
 function ProductModal({ item, onClose, findCol, formatCurrency, parseCurrency }) {
   const idxRef = findCol('Ref') ?? 0;
@@ -1046,5 +1046,6 @@ export default function App() {
     </div>
   );
 }
+
 
 
