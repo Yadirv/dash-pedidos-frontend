@@ -7,7 +7,68 @@ import dataset from './data.json';
 // ==========================================
 // CONFIGURACIÓN API
 // ==========================================
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxzGXfr-fvDJF0IDf0BFMT6ajkzMe5R9MR-I1OfqiKfotRNcuOwM8--UoWKGCfPaXbD/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4W2_Zg9qKsW5k3wtDyo48ArT7F59t57sTim_kW2YhbZAcnK-3XKp2MHMwmUSei5_n/exec";
+
+const ALL_CHANNELS = ['C1', 'C2', 'C3', 'C4'];
+
+function normalizeToken(value) {
+  return String(value || '').trim().toUpperCase();
+}
+
+function parseChannelList(raw) {
+  const input = normalizeToken(raw);
+  if (!input) return [];
+  if (/(TODOS|TODAS|ALL)/.test(input)) return [...ALL_CHANNELS];
+
+  const matches = input.match(/C[1-4]/g) || [];
+  const unique = [...new Set(matches)];
+  return ALL_CHANNELS.filter(c => unique.includes(c));
+}
+
+function parseCsvLine(line) {
+  const values = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (ch === ',' && !inQuotes) {
+      values.push(current);
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  values.push(current);
+  return values;
+}
+
+function buildChannelMapFromCsv(csvText) {
+  const lines = String(csvText || '').split(/\r?\n/).filter(Boolean);
+  if (lines.length < 2) return new Map();
+
+  const header = parseCsvLine(lines[0]);
+  const idxRef = header.findIndex(h => normalizeToken(h) === 'REF');
+  const idxCanales = header.findIndex(h => normalizeToken(h) === 'CANALES');
+  if (idxRef === -1 || idxCanales === -1) return new Map();
+
+  const map = new Map();
+  for (let i = 1; i < lines.length; i++) {
+    const cols = parseCsvLine(lines[i]);
+    const ref = normalizeToken(cols[idxRef]);
+    if (!ref) continue;
+    const canales = parseChannelList(cols[idxCanales]);
+    if (canales.length > 0) map.set(ref, canales);
+  }
+  return map;
+}
 
 function ProductModal({ item, onClose, findCol, formatCurrency, parseCurrency }) {
   const idxRef = findCol('Ref') ?? 0;
@@ -340,6 +401,8 @@ export default function App() {
   const [loginForm, setLoginForm] = useState({ cc: '', cel: '' });
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [loginError, setLoginError] = useState('');
+  const [productChannelsByRef, setProductChannelsByRef] = useState(new Map());
+  const [channelMapStatus, setChannelMapStatus] = useState('idle');
 
   // -------------------------
   // ESTADOS DEL DASHBOARD
@@ -377,6 +440,33 @@ export default function App() {
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadChannelMap() {
+      setChannelMapStatus('loading');
+      try {
+        const res = await fetch('/canales_productos.csv', { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const csvText = await res.text();
+        const map = buildChannelMapFromCsv(csvText);
+        if (!cancelled) {
+          setProductChannelsByRef(map);
+          setChannelMapStatus('ready');
+        }
+      } catch (err) {
+        console.error('No se pudo cargar canales_productos.csv:', err);
+        if (!cancelled) {
+          setProductChannelsByRef(new Map());
+          setChannelMapStatus('error');
+        }
+      }
+    }
+
+    loadChannelMap();
+    return () => { cancelled = true; };
+  }, []);
+
   const headerRow = data.find(d => d.index_ === 'header')?.row || [];
   const findCol = (name) => {
     const idx = headerRow.findIndex(h => h && h.toString().toLowerCase().includes(name.toLowerCase()));
@@ -391,7 +481,7 @@ export default function App() {
   const idxPvpCon= findCol('PVP Con') ?? 9;
   const idxMargen = findCol('Margen %') ?? 10;
   const idxImgUrl= findCol('Imagen_URL') ?? 12;
-  const idxCanales = findCol('Canales');  // Canal de venta
+  const idxCanales = findCol('Canales') ?? findCol('Canal'); // Canal de venta
 
   const parseCurrency = useCallback((val) => {
     if (typeof val === 'number') return val;
@@ -440,7 +530,12 @@ export default function App() {
       const clienteEncontrado = clientes.find(c => String(c.cc_nit) === String(loginForm.cc) && String(c.celular) === String(loginForm.cel));
       
       if (clienteEncontrado) {
-        setClientLogged(clienteEncontrado);
+        const canalesCliente = parseChannelList(clienteEncontrado.canales);
+        if (canalesCliente.length === 0) {
+          setLoginError('Tu cuenta no tiene canales activos. Contacta al administrador para habilitar al menos un canal.');
+        } else {
+          setClientLogged({ ...clienteEncontrado, canales: canalesCliente.join(',') });
+        }
       } else {
         setLoginError('Los datos no coinciden con ningún cliente registrado. Comunícate con el distribuidor.');
       }
@@ -623,9 +718,11 @@ export default function App() {
     const searchLower = deferredSearchTerm.toLowerCase();
 
     // Canales habilitados para el cliente logueado
-    const clientCanales = clientLogged?.canales
-      ? clientLogged.canales.split(',').map(c => c.trim()).filter(Boolean)
-      : [];
+    const clientCanales = parseChannelList(clientLogged?.canales);
+    const clientCanalesSet = new Set(clientCanales);
+    const canFilterByDataset = idxCanales !== null;
+    const canFilterByCsvMap = productChannelsByRef.size > 0;
+    const hasFilteringSource = canFilterByDataset || canFilterByCsvMap;
 
     return rows.filter(item => {
       const name = String(item.row[idxProd] || '').toLowerCase();
@@ -643,12 +740,18 @@ export default function App() {
 
       // Filtro por canal de venta
       let matchesCanal = true;
-      if (idxCanales !== null && clientCanales.length > 0) {
-        const productCanales = String(item.row[idxCanales] || '')
-          .split(',').map(c => c.trim()).filter(Boolean);
-        // Producto sin canal asignado => visible para todos
-        if (productCanales.length > 0) {
-          matchesCanal = productCanales.some(pc => clientCanales.includes(pc));
+      if (clientCanales.length > 0) {
+        if (!hasFilteringSource) {
+          matchesCanal = false;
+        } else {
+          let productCanales = [];
+          if (canFilterByDataset) {
+            productCanales = parseChannelList(item.row[idxCanales]);
+          } else {
+            const refKey = normalizeToken(item.row[idxRef]);
+            productCanales = productChannelsByRef.get(refKey) || [];
+          }
+          matchesCanal = productCanales.length > 0 && productCanales.some(pc => clientCanalesSet.has(pc));
         }
       }
 
@@ -658,7 +761,7 @@ export default function App() {
       const bImg = b.row[idxImgUrl] ? 1 : 0;
       return bImg - aImg;
     });
-  }, [rows, deferredSearchTerm, deferredFilterPetType, deferredSelectedBrands, deferredSelectedCategories, idxImgUrl, idxProd, idxRef, idxCategoria, idxMarca, idxCanales, clientLogged]);
+  }, [rows, deferredSearchTerm, deferredFilterPetType, deferredSelectedBrands, deferredSelectedCategories, idxImgUrl, idxProd, idxRef, idxCategoria, idxMarca, idxCanales, clientLogged, productChannelsByRef]);
 
   const stats = useMemo(() => {
     let totalCompra = 0; let cats = 0; let dogs = 0; let distinctItems = 0; let totalPuntos = 0;
@@ -783,6 +886,14 @@ export default function App() {
         <StatCard label="Línea Gatos" val={`${stats.catCount}`} icon={<Cat/>} color="blue" />
         <StatCard label="Línea Perros" val={`${stats.dogCount}`} icon={<Dog/>} color="orange" />
       </div>
+
+      {idxCanales === null && channelMapStatus !== 'ready' && (
+        <div className="max-w-7xl mx-auto mb-6 bg-amber-50 border border-amber-200 text-amber-800 text-sm font-bold px-4 py-3 rounded-2xl">
+          {channelMapStatus === 'loading'
+            ? 'Cargando mapa de canales para aplicar filtros por cliente...'
+            : 'No se pudo cargar el mapa de canales. El catálogo permanecerá restringido hasta corregir el archivo canales_productos.csv.'}
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden mb-8">
         <div className="p-6 border-b border-slate-50 flex flex-col md:flex-row gap-4 items-center">
@@ -1046,6 +1157,7 @@ export default function App() {
     </div>
   );
 }
+
 
 
 
