@@ -175,6 +175,34 @@ Campañas publicitarias de precisión geográfica en Meta Ads (Facebook/Instagra
 
 ---
 
+## SERVICIO 6 — Sistema de Fidelización y Cupones
+
+### Descripción
+
+Implementación de un sistema integral de validación de cupones y registro de usuarios, impulsado por un backend en Google Apps Script y base de datos en Google Sheets. Diseñado para centralizar y auditar la distribución de promociones a través de códigos de tienda únicos. Permite captar base de datos propia de clientes (First-Party Data) y filtrar el acceso al catálogo de ofertas.
+
+### Sub-servicios
+
+| ID | Sub-servicio | Descripción | Entregable |
+|----|-------------|-------------|------------|
+| S6-A | Setup Base de Datos (Google Sheets) | Configuración de las hojas de `Cod_Tiendas`, `Usuarios` y `Cupones`. Reglas de validación, estados (Activo/Inactivo) y trazabilidad. | Archivo master configurado |
+| S6-B | Backend Apps Script | Desarrollo de endpoints API (Code.js) para validación de tienda, registro de usuarios y entrega de catálogo condicionado al código. | Web App desplegada (URL GAS) |
+| S6-C | Frontend de Usuario | Interfaz pública para registro, validación del Cod. Tienda con UX amigable, y persistencia de sesión (localStorage). | Repositorio + UI productiva |
+| S6-D | Panel Administrativo | Interfaz para la gestión de códigos de tienda, validación de cupones y lectura de métricas de redención. | Dashboard de control |
+
+### Stack utilizado
+
+- **Google Workspace (Sheets & Apps Script):** base de datos gratuita, lógica serverless y API
+- **HTML/CSS/JS (Vanilla):** frontend rápido y ligero
+- **Netlify / Vercel:** deployment de interfaces estáticas
+- **Local Storage:** persistencia de sesión sin cookies complejas
+
+### Señal de calificación del cliente
+
+> Cliente ideal: tiene local físico o múltiples sucursales, necesita construir su propia base de datos (First-Party Data) sin depender exclusivamente de redes sociales, y desea ofrecer beneficios/cupones controlados.
+
+---
+
 ## Tabla Resumen de Servicios
 
 | # | Servicio | Stack Principal | Entregable Clave | Perfil Cliente |
@@ -184,6 +212,7 @@ Campañas publicitarias de precisión geográfica en Meta Ads (Facebook/Instagra
 | S3 | Sitio Web con Backend | Figma, Next.js, Vercel, APIs | Web dinámica en producción | Requiere lógica o e-commerce |
 | S4 | Administración RRSS | Meta Business Suite, Make | Calendario + automatizaciones | Sin tiempo o estrategia en RRSS |
 | S5 | Marketing Zonificado | Meta Ads, Google Ads Local | Campañas activas geolocalizadas | Quiere clientes locales nuevos |
+| S6 | Sistema Fidelización y Cupones | Google Apps Script, Sheets, JS | UI Pública + Backend GAS + BD | Busca base de datos propia controlada |
 
 ---
 
