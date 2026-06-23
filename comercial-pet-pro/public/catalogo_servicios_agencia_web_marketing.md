@@ -1,4 +1,4 @@
-# Catálogo de Servicios — Agencia Web & Marketing Dirigido
+# Catálogo de Servicios — Search & Scale
 
 > **Versión:** 1.0  
 > **Contexto origen:** Pilar Agencia Web y Marketing Dirigido — Sesión 26 marzo 2026  
@@ -12,7 +12,7 @@
 
 ```yaml
 catalogo_version: "1.0"
-agencia: "Agencia Web & Marketing Dirigido"
+agencia: "Search & Scale"
 fecha_definicion: "2026-03-26"
 pilares:
   - "Diseño y Construcción Web"
@@ -207,16 +207,48 @@ Implementación de un sistema integral de validación de cupones y registro de u
 
 ---
 
+## Tarifas y Costos de Referencia (Search & Scale)
+
+### 1. Publicación en Redes Sociales (Community Management)
+Las tarifas en este servicio se cobran bajo un modelo de mensualidad (fee mensual). El precio depende directamente de cuántas redes se manejen y la cantidad de publicaciones/videos (Reels/TikToks) al mes.
+*   **Rango Freelancer Junior / Básico (Fiverr/Workana básico):** $500.000 a $1.200.000 COP / mes.
+    *¿Qué incluye?* Manejo de 1 o 2 redes sociales (usualmente Instagram y Facebook), de 2 a 3 publicaciones semanales (diseño de imágenes sencillas con plantillas) y copys básicos. No incluye edición de video compleja ni respuesta activa a mensajes.
+*   **Rango Freelancer Senior / Intermedio:** $1.500.000 a $3.000.000 COP / mes.
+    *¿Qué incluye?* Estrategia de contenidos, diseño personalizado de marca, edición de Reels/TikToks, reportes mensuales de rendimiento y una gestión moderada de la comunidad (responder comentarios).
+
+### 2. Desarrollo de Landing Pages Estáticas
+Este es un servicio de pago único por proyecto. Al ser estática, significa que no requiere integraciones complejas de bases de datos o pasarelas de pago pesadas, sino que se enfoca en captar leads o dirigir a un botón de WhatsApp.
+*   **Rango Básico (Freelancer con plantilla / WordPress / Elementor):** $500.000 a $1.200.000 COP.
+    *¿Qué incluye?* Una página de una sola sección estructurada con una plantilla prefabricada, adaptada a dispositivos móviles, formulario de contacto directo y enlace a WhatsApp.
+*   **Rango Profesional (Diseño a medida en código o Webflow + Copywriting):** $1.500.000 a $3.500.000 COP.
+    *¿Qué incluye?* Diseño exclusivo desde cero (muchas veces estructurado primero en Figma), textos persuasivos (copywriting) enfocados en tu cliente ideal, optimización extrema de velocidad de carga y la instalación de códigos de seguimiento (píxel de Meta y Google Analytics).
+    > ⚠️ **Ten en cuenta:** Estos precios casi nunca incluyen los costos anuales del Dominio (.com o .co) ni del Hosting, los cuales debes pagar tú por aparte (aproximadamente entre $300.000 y $600.000 COP anuales en total).
+
+### 3. Publicidad y Marketing (Meta Ads y Google Ads)
+Aquí debes separar dos costos diferentes: lo que le pagas al freelancer por su trabajo (Fee de gestión) y lo que le pagas directamente a Meta/Google para que muestren tus anuncios (Presupuesto de pauta).
+*   **Tarifa de gestión del Freelancer (Media Buyer / Trafficker):**
+    *   **Configuración Inicial (Setup - Pago único):** $1.000.000 a $1.500.000 COP. Muchos profesionales cobran esto solo por crear las cuentas desde cero, estructurar las campañas de búsqueda, configurar el píxel de Meta y verificar el dominio.
+    *   **Fee Fijo Mensual (Cuentas pequeñas/medianas):** $600.000 a $1.500.000 COP / mes. Es lo que cobra el freelancer por monitorear, optimizar y cambiar los anuncios todas las semanas.
+    *   **Modelo por Porcentaje:** Si manejas presupuestos muy altos, el freelancer o la agencia te cobrará entre el 15% y el 20% del total de lo que inviertas en publicidad (por ejemplo, si inviertes $5.000.000 COP en pauta, su fee será de $750.000 a $1.000.000 COP).
+*   **Presupuesto de pauta mínimo recomendado en Colombia:**
+    Para que los algoritmos tengan datos suficientes para optimizar y traerte ventas reales, los mínimos mensuales recomendados en el mercado local son:
+    *   **Meta Ads (FB/IG):** Mínimo $400.000 a $600.000 COP / mes (unos $15.000 a $20.000 COP diarios).
+    *   **Google Ads (Buscador):** Mínimo $800.000 a $1.500.000 COP / mes, ya que el costo por clic en Google suele ser más costoso según tu nicho.
+
+---
+
 ## Tabla Resumen de Servicios
 
-| # | Servicio | Stack Principal | Entregable Clave | Perfil Cliente |
-|---|----------|----------------|-----------------|----------------|
-| S1 | Inteligencia de Negocio / ADN de Marca | Google Pro, Figma | Manifiesto de Posicionamiento | Sin diferenciación clara |
-| S2 | Landing Page Estática | Figma, Pinegrow, Netlify | URL productiva + SEO básico | Necesita presencia rápida |
-| S3 | Sitio Web con Backend | Figma, Next.js, Vercel, APIs | Web dinámica en producción | Requiere lógica o e-commerce |
-| S4 | Administración RRSS | Meta Business Suite, Make | Calendario + automatizaciones | Sin tiempo o estrategia en RRSS |
-| S5 | Marketing Zonificado | Meta Ads, Google Ads Local | Campañas activas geolocalizadas | Quiere clientes locales nuevos |
-| S6 | Sistema Fidelización y Cupones | Google Apps Script, Sheets, JS | UI Pública + Backend GAS + BD | Busca base de datos propia controlada |
+| # | Servicio | Stack Principal | Entregable Clave | Perfil Cliente | Costo Base (COP) |
+|---|----------|----------------|-----------------|----------------|------------------|
+| S1 | Inteligencia de Negocio / ADN de Marca | Google Pro, Figma | Manifiesto de Posicionamiento | Sin diferenciación clara | $500.000 |
+| S2 | Landing Page Estática | Figma, Pinegrow, Netlify | URL productiva + SEO básico | Necesita presencia rápida | $500.000 - $1.200.000 |
+| S3 | Sitio Web con Backend | Figma, Next.js, Vercel, APIs | Web dinámica en producción | Requiere lógica o e-commerce | Consultar a medida |
+| S4 | Administración RRSS | Meta Business Suite, Make | Calendario + automatizaciones | Sin tiempo o estrategia en RRSS | $500.000 - $1.200.000 / mes |
+| S5 | Marketing Zonificado | Meta Ads, Google Ads Local | Campañas activas geolocalizadas | Quiere clientes locales nuevos | $850.000 / mes + Pauta |
+| S6 | Sistema Fidelización y Cupones | Google Apps Script, Sheets, JS | UI Pública + Backend GAS + BD | Busca base de datos propia controlada | $1.200.000 |
+
+> ⚠️ **Nota Importante:** Estos precios nunca incluyen los costos anuales del Dominio (.com o .co) ni del Hosting.
 
 ---
 
@@ -306,5 +338,5 @@ INPUT: datos del cliente (website_url, instagram, facebook, descripcion, rating,
 
 ---
 
-*Documento generado con base en el Pilar Agencia Web & Marketing Dirigido definido el 26 de marzo 2026.*  
+*Documento generado con base en el Pilar Search & Scale definido el 26 de marzo 2026.*  
 *Stack validado contra negocios pet del Sur del Valle de Aburrá (Itagüí, Sabaneta, La Estrella, Caldas).*
